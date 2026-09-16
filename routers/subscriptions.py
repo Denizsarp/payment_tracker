@@ -39,7 +39,7 @@ async def get_my_subs(db:Session = Depends(database.get_database), current_user:
         raise HTTPException(detail="no subscription found!", status_code=status.HTTP_404_NOT_FOUND)
     return user_subs
 
-
+#CREATE NEW SUBSCRIPTION
 @router.post('/create', status_code=status.HTTP_201_CREATED, response_model=schemas.SubscriptionCreate)
 async def create_subs(new_features:schemas.SubscriptionCreate, db:Session = Depends(database.get_database), current_user:models.User = Depends(oauth2.get_current_user)) -> schemas.SubscriptionCreate:
     create_data = new_features.model_dump(exclude_unset=True)
@@ -56,3 +56,26 @@ async def create_subs(new_features:schemas.SubscriptionCreate, db:Session = Depe
     db.refresh(new_subs)
 
     return new_subs
+
+
+
+#DELETE SUBSCRIPTION OF MYSELF
+@router.delete('/{subs_id}}', status_code=status.HTTP_200_OK, response_model=str)
+async def delete_subs(subs_id :UUID, db: Session = Depends(database.get_database), current_user:models.User = Depends(oauth2.get_current_user)) -> str:
+    target_subs:models.Subscription = db.query(models.Subscription).filter(models.Subscription.id == subs_id).first()
+
+    if not target_subs:
+        raise HTTPException(detail="No subscription found!", status_code=status.HTTP_404_NOT_FOUND)
+
+    if target_subs.user_id != current_user.id:
+        raise HTTPException(detail="No authorization!", status_code=status.HTTP_403_FORBIDDEN)
+
+    try:
+        db.delete(target_subs)
+        db.commit()
+        return 'removal is done!'
+    except Exception as exc:
+        raise HTTPException(detail=f'Subscription Deletion Error: {str(exc)}', status_code=status.HTTP_400_BAD_REQUEST)
+
+
+
