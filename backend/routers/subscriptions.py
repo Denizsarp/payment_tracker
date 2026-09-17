@@ -1,15 +1,15 @@
 from fastapi import FastAPI, HTTPException, status, Depends, APIRouter
 from typing import List, Optional
-import backend.models as models
-import backend.schemas as schemas
-import backend.database as database
-import backend.hashing as hashing
-from backend.hashing import Hash
+import models as models
+import schemas as schemas
+import database as database
+import hashing as hashing
+from hashing import Hash
 from datetime import datetime
-from backend.database import engine, SessionLocal
+from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 #import authentication
-import backend.oauth2 as oauth2
+import oauth2 as oauth2
 import uuid
 from uuid import UUID
 
@@ -40,22 +40,22 @@ async def get_my_subs(db:Session = Depends(database.get_database), current_user:
     return user_subs
 
 #CREATE NEW SUBSCRIPTION
-@router.post('/create', status_code=status.HTTP_201_CREATED, response_model=schemas.SubscriptionCreate)
-async def create_subs(new_features:schemas.SubscriptionCreate, db:Session = Depends(database.get_database), current_user:models.User = Depends(oauth2.get_current_user)) -> schemas.SubscriptionCreate:
+@router.post('/create', status_code=status.HTTP_201_CREATED, response_model=str)
+async def create_subs(new_features:schemas.SubscriptionCreate, db:Session = Depends(database.get_database), current_user:models.User = Depends(oauth2.get_current_user)) -> str:
     create_data = new_features.model_dump(exclude_unset=True)
 
     new_subs = models.Subscription(
         name = create_data['name'],
         amount = create_data['amount'],
         pay_cycle = create_data['pay_cycle'],
-        next_payment_date = create_data['next_payment_date']
+        user_id = current_user.id
     )
 
     db.add(new_subs)
     db.commit()
     db.refresh(new_subs)
 
-    return new_subs
+    return 'successfully subscription created!'
 
 
 

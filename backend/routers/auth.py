@@ -1,19 +1,19 @@
 from fastapi import FastAPI, HTTPException, status, Depends, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import List, Optional
-import backend.models as models
-import backend.schemas as schemas
-import backend.database as database
-import backend.hashing as hashing # type: ignore
-from backend.hashing import Hash # type: ignore
-from backend.database import engine, SessionLocal
+import models as models
+import schemas as schemas
+import database as database
+import hashing as hashing # type: ignore
+from hashing import Hash # type: ignore
+from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 #import authentication
-import backend.oauth2 as oauth2
+import oauth2 as oauth2
 import uuid
 from uuid import UUID
-import backend.jwtToken as jwtToken
-from backend.jwtToken import TokenOP
+import jwtToken as jwtToken
+from jwtToken import TokenOP
 import secrets
 import password_validation
 from password_validation import PasswordOP
@@ -27,8 +27,8 @@ router = APIRouter(
 
 
 
-@router.post('/register', status_code=status.HTTP_201_CREATED, response_model=schemas.User)
-async def register(user_info:schemas.UserCreate, db:Session = Depends(database.get_database)) -> schemas.User:
+@router.post('/register', status_code=status.HTTP_201_CREATED, response_model=schemas.UserDisplay)
+async def register(user_info:schemas.UserCreate, db:Session = Depends(database.get_database)) -> schemas.UserDisplay:
     create_data = user_info.model_dump(exclude_unset=True)
 
     current_email = create_data['email'].strip().lower()
@@ -57,13 +57,15 @@ async def register(user_info:schemas.UserCreate, db:Session = Depends(database.g
     )
     db.add(new_user)
     db.commit()
-    db.refresh()
+    db.refresh(new_user)
+
+    return new_user
 
 
 
 
 @router.post('/login', status_code=status.HTTP_200_OK, response_model=dict)
-async def user_login(request:OAuth2PasswordRequestForm, db:Session = Depends(database.get_database)) -> dict:
+async def user_login(request:OAuth2PasswordRequestForm = Depends(), db:Session = Depends(database.get_database)) -> dict:
     user_info:str = request.username
 
     if '@' in user_info:

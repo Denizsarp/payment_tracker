@@ -3,11 +3,11 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-import backend.jwtToken as jwtToken
-from backend.jwtToken import TokenOp
-import backend.database as database
-import backend.models as models
-import backend.schemas as schemas
+import jwtToken as jwtToken
+from jwtToken import TokenOP
+import database as database
+import models as models
+import schemas as schemas
 
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -22,7 +22,7 @@ def get_current_user(data:str = Depends(oauth2_scheme), db:Session = Depends(dat
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    current_user_id = TokenOp.verify_token(
+    current_user_id = TokenOP.verify_token(
         data,
         exc
     )

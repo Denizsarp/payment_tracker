@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
-from backend.database import Base
+from database import Base
 
 
 
@@ -34,7 +34,6 @@ class Subscription(Base):
     name = Column(String, nullable=False)
     amount = Column(Numeric(10, 2), nullable=False)
     pay_cycle = Column(String, nullable=False, default="month")
-    next_payment_date = Column(DateTime, nullable=False)
 
 
     user_id = Column(
@@ -43,17 +42,8 @@ class Subscription(Base):
         nullable=False
     )
 
-    category_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("categories.id")
-    )
+    user = relationship("User", back_populates='subscriptions')
 
-
-class Category(Base):
-    __tablename__ = "categories"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, nullable=False, default=uuid.uuid4)
-    category_name = Column(String, nullable=False)
 
 
     

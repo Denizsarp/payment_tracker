@@ -17,21 +17,14 @@ class UserUpdate(BaseModel):
     username:Optional[str] = None
     email:Optional[str] = None
     password:Optional[str] = None
-    target_spending = Optional[float] = None
+    target_spending : Optional[float] = None
 
 #----------------------------------------------------------
-
-class CategoryCreate(BaseModel):
-    name:str
-
 
 
 
 #-------------------------GENERAL CLASSES-------------------
 
-class Category(BaseModel):
-    id:UUID
-    name:str
 
 
 class Subscription(BaseModel):
@@ -39,8 +32,7 @@ class Subscription(BaseModel):
     name:str
     amount:float
     pay_cycle:str
-    next_payment_date:datetime
-    category:Category
+    #next_payment_date:datetime
 
     model_config = {
         "from_attributes" : True
@@ -61,12 +53,13 @@ class User(BaseModel):
 
 #------------------------------------------------------
 
+
+
+
 class SubscriptionCreate(BaseModel):
     name:str
-    amount:float #Numeric
+    amount:float
     pay_cycle:str
-    next_payment_date:datetime
-    category:Category
 
 
 

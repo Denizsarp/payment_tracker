@@ -1,14 +1,14 @@
 from fastapi import FastAPI, HTTPException, status, Depends, APIRouter
 from typing import List, Optional
-import backend.models as models
-import backend.schemas as schemas
-import backend.database as database
-import backend.hashing as hashing # type: ignore
-from backend.hashing import Hash # type: ignore
-from backend.database import engine, SessionLocal
+import models as models
+import schemas as schemas
+import database as database
+import hashing as hashing # type: ignore
+from hashing import Hash # type: ignore
+from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 #import authentication
-import backend.oauth2 as oauth2
+import oauth2 as oauth2
 import uuid
 from uuid import UUID
 
