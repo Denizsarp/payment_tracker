@@ -1,19 +1,19 @@
 from fastapi import FastAPI, HTTPException, status, Depends, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import List, Optional
-import models
-import schemas
-import database
-import hashing # type: ignore
-from hashing import Hash # type: ignore
-from database import engine, SessionLocal
+import backend.models as models
+import backend.schemas as schemas
+import backend.database as database
+import backend.hashing as hashing # type: ignore
+from backend.hashing import Hash # type: ignore
+from backend.database import engine, SessionLocal
 from sqlalchemy.orm import Session
 #import authentication
-import oauth2
+import backend.oauth2 as oauth2
 import uuid
 from uuid import UUID
-import jwtToken
-from jwtToken import TokenOP
+import backend.jwtToken as jwtToken
+from backend.jwtToken import TokenOP
 import secrets
 
 
