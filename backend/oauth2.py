@@ -3,11 +3,11 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-import jwtToken
-from jwtToken import TokenOp
-import database
-import models
-import schemas
+import backend.jwtToken as jwtToken
+from backend.jwtToken import TokenOp
+import backend.database as database
+import backend.models as models
+import backend.schemas as schemas
 
 
 oauth2_scheme = OAuth2PasswordBearer(

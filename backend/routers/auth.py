@@ -15,6 +15,8 @@ from uuid import UUID
 import backend.jwtToken as jwtToken
 from backend.jwtToken import TokenOP
 import secrets
+import password_validation
+from password_validation import PasswordOP
 
 
 
@@ -38,6 +40,11 @@ async def register(user_info:schemas.UserCreate, db:Session = Depends(database.g
     if db.query(models.User).filter(models.User.email == current_email).first():
         raise HTTPException(detail="E-mail already registered!", status_code=status.HTTP_409_CONFLICT)
 
+    validation_password = PasswordOP.validate_password(create_data['password'])
+
+    if validation_password:
+        raise HTTPException(detail=f"Password Error: {validation_password}", status_code=status.HTTP_400_BAD_REQUEST)
+    
     hashed_password = Hash.bcrypt(create_data['password'])
 
     curren_verification_code = (secrets.randbelow(900000) + 100000) 
