@@ -15,12 +15,8 @@ class User(Base):
     username = Column(String, nullable=False)
     email = Column(String, nullable=False)
     password = Column(String, nullable=False)
+    target_spending = Column(Float, nullable=False)
     total_monthly_spending = Column(Float, default= 0.0, nullable=True)
-
-    is_verified = Column(Boolean, default=False, nullable=False)
-    verification_code = Column(String, nullable=True)
-    verification_code_expires_at = Column(DateTime, nullable=True)
-    verification_code_resend_limit = Column(DateTime, nullable=True)
 
 
     subscriptions = relationship(
@@ -58,6 +54,6 @@ class Category(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, nullable=False, default=uuid.uuid4)
     category_name = Column(String, nullable=False)
-    
+
 
     

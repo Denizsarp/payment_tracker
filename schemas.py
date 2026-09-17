@@ -10,16 +10,19 @@ class UserCreate(BaseModel):
     username:str
     email:str
     password:str
+    target_spending:float
 
 
 class UserUpdate(BaseModel):
-    username:Optional[str] = []
-    email:Optional[str] = []
-    password:Optional[str] = []
+    username:Optional[str] = None
+    email:Optional[str] = None
+    password:Optional[str] = None
+    target_spending = Optional[float] = None
 
 #----------------------------------------------------------
 
-
+class CategoryCreate(BaseModel):
+    name:str
 
 
 
