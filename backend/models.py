@@ -42,7 +42,27 @@ class Subscription(Base):
         nullable=False
     )
 
+    category = Column(
+        String,
+        ForeignKey("categories.name"),
+        nullable=False
+    )
+
     user = relationship("User", back_populates='subscriptions')
+
+
+
+
+
+class Category(Base):
+    __tablename__ = "categories"
+
+
+    id = Column(UUID(as_uuid=True), primary_key=True, nullable=False, default=uuid.uuid4)
+    name = Column(String, nullable=False)
+    
+
+
 
 
 
