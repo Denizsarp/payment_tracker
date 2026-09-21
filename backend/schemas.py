@@ -74,6 +74,16 @@ class UserDisplay(BaseModel):
 
 
 
+class Category(BaseModel):
+    id:UUID
+    name:str
+
+    model_config = {
+            "from_attributes": True
+        }
+
+
+
 
 
 
