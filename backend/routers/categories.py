@@ -26,3 +26,29 @@ async def get_categs(db:Session = Depends(database.get_database)) -> List[schema
         raise HTTPException(detail="No category found!", status_code=status.HTTP_404_NOT_FOUND)
 
     return categs
+
+
+
+@router.post('/create-category', status_code=status.HTTP_200_OK, response_model=schemas.Category)
+async def create_category(new_features:schemas.CategoryCreate, db:Session = Depends(database.get_database)) ->schemas.Category:
+    create_data = new_features.model_dump(exclude_unset=True)
+
+    new_category:models.Category = models.Category(
+        name = create_data['name']
+    )
+    db.add(new_category)
+    db.commit()
+    db.refresh(new_category)
+
+    return new_category
+
+@router.delete('/{categ_name}', status_code=status.HTTP_200_OK, response_model=str)
+async def delete_category(category_name:str, db:Session = Depends(database.get_database)) -> str:
+    target_category = db.query(models.Category).filter(models.Category.name == category_name).first()
+    if not target_category:
+        raise HTTPException(detail="No category name found!", status_code=status.HTTP_404_NOT_FOUND)
+
+    db.delete(target_category)
+    db.commit()
+    return 'removal is successful!'
+

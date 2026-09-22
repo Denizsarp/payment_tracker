@@ -83,7 +83,8 @@ class Category(BaseModel):
         }
 
 
-
+class CategoryCreate(BaseModel):
+    name:str
 
 
 
