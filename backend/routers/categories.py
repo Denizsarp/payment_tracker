@@ -27,7 +27,18 @@ async def get_categs(db:Session = Depends(database.get_database)) -> List[schema
 
     return categs
 
+@router.get('/{category_id}', status_code=status.HTTP_200_OK, response_model=schemas.Category)
+async def get_category(category_id:UUID, db:Session = Depends(database.get_database)) -> schemas.Category:
+    target_category = db.query(models.Category).filter(models.Category.id == category_id).first()
+    if not target_category:
+        raise HTTPException(detail="no category found!", status_code=status.HTTP_404_NOT_FOUND)
 
+    else:
+        return target_category
+    
+
+
+#category creation endpoint
 
 @router.post('/create-category', status_code=status.HTTP_200_OK, response_model=schemas.Category)
 async def create_category(new_features:schemas.CategoryCreate, db:Session = Depends(database.get_database)) ->schemas.Category:
@@ -42,6 +53,10 @@ async def create_category(new_features:schemas.CategoryCreate, db:Session = Depe
 
     return new_category
 
+
+
+#category deletion endpoint
+
 @router.delete('/{categ_name}', status_code=status.HTTP_200_OK, response_model=str)
 async def delete_category(category_name:str, db:Session = Depends(database.get_database)) -> str:
     target_category = db.query(models.Category).filter(models.Category.name == category_name).first()
@@ -51,4 +66,5 @@ async def delete_category(category_name:str, db:Session = Depends(database.get_d
     db.delete(target_category)
     db.commit()
     return 'removal is successful!'
+
 
