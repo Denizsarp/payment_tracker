@@ -127,6 +127,11 @@ class MainActivity : ComponentActivity(){
                     }
 
                 }
+                "login" ->{
+                    Column{
+                        
+                    }
+                }
             }
         }
     }
