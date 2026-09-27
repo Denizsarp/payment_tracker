@@ -6,3 +6,14 @@ data class RegisterRequest(
     val password:String,
     val targetSpending: Int
 )
+
+data class LoginResponse(
+    val accessToken : String,
+    val tokenType :String
+)
+
+data class SubscriptionDisplay(
+    val name:String,
+    val amount:Float,
+    val payCycle:String
+)

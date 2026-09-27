@@ -15,4 +15,18 @@ interface ApiService{
     suspend fun register(
         @Body request : RegisterRequest
     )
+
+
+    @FormUrlEncoded
+    @POST("/auth/login")
+    suspend fun login(
+        @Field("username") email : String,
+        @Field("password") password : String
+    ):LoginResponse
+
+
+    @GET("/subscriptions/my-subscriptions")
+    suspend fun getSubscriptions(
+        @Header("Authorization") token : String
+    ):List<SubscriptionDisplay>
 }

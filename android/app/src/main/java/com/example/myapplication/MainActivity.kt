@@ -46,10 +46,15 @@ class MainActivity : ComponentActivity(){
             var email by remember{mutableStateOf("")}
             var password by remember{mutableStateOf("")}
             var targetSpending by remember{mutableStateOf("")}
+            var accessToken by remember { mutableStateOf("") }
+            var subscriptions by remember {
+                mutableStateOf(listOf<SubscriptionDisplay>())
+            }
 
 
             var currentScreen by remember {mutableStateOf("register")}
             var registerError by remember{mutableStateOf("")}
+            var loginError by remember{mutableStateOf("")}
 
 
 
@@ -129,7 +134,44 @@ class MainActivity : ComponentActivity(){
                 }
                 "login" ->{
                     Column{
-                        
+                        Text("Login")
+                        Text("      ")
+                        Text("      ")
+                        Text("      ")
+                        Text("      ")
+                        Text("      ")
+                        OutlinedTextField(
+                            value = email,
+                            onValueChange = {email = it},
+                            label = {Text("Username/E-mail")}
+                        )
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = {password = it},
+                            label = {Text("Password")}
+                        )
+
+                        Button(
+                            onClick = {
+                                lifecycleScope.launch{
+                                    try{
+                                        val response = RetrofitClient.api.login(
+                                            email = email,
+                                            password = password
+                                        )
+                                        accessToken = response.accessToken
+                                        subscriptions = RetrofitClient.api.getSubscriptions(
+                                            token = "Bearer $accessToken"
+                                        )
+
+                                    }catch(e: HttpException){
+                                        
+                                    }
+                                }
+                            }
+                        ){
+                            Text("Login")
+                        }
                     }
                 }
             }
