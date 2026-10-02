@@ -74,12 +74,12 @@ async def user_login(request:OAuth2PasswordRequestForm = Depends(), db:Session =
         user = db.query(models.User).filter(models.User.username == user_info).first()
 
     if not user:
-        raise HTTPException(detail='Invalid Credidentals!', status_code=status.HTTP_401_UNAUTHORIZED)
+        raise HTTPException(detail='Invalid Credentials!', status_code=status.HTTP_401_UNAUTHORIZED)
 
     verify_password = Hash.verify_password(request.password, user.password)
 
     if not verify_password:
-        raise HTTPException(detail="Email verification not confirmed!", status_code=status.HTTP_403_FORBIDDEN)
+        raise HTTPException(detail="Password is incorrect!", status_code=status.HTTP_403_FORBIDDEN)
 
     else:
         access_token = TokenOP.create_access_token(

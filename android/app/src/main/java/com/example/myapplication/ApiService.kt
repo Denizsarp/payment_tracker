@@ -29,4 +29,12 @@ interface ApiService{
     suspend fun getSubscriptions(
         @Header("Authorization") token : String
     ):List<SubscriptionDisplay>
+
+
+
+    @POST("/subscriptions/create")
+    suspend fun createSubscription(
+        @Header("Authorization") token : String,
+        @Body createSubs : SubscriptionCreateRequest
+    ): SubscriptionDisplay
 }

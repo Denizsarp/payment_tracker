@@ -4,29 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.text.input.TextObfuscationMode
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.paneTitle
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -50,11 +31,17 @@ class MainActivity : ComponentActivity(){
             var subscriptions by remember {
                 mutableStateOf(listOf<SubscriptionDisplay>())
             }
+            var userMemories by remember{mutableStateOf(listOf<SubscriptionDisplay>())}
+
+            var subsTitle by remember{mutableStateOf("")}
+            var subsAmount by remember{ mutableStateOf("") }
+            var payCycle by remember{mutableStateOf("")}
 
 
             var currentScreen by remember {mutableStateOf("register")}
             var registerError by remember{mutableStateOf("")}
             var loginError by remember{mutableStateOf("")}
+            var creationError by remember{mutableStateOf("")}
 
 
 
@@ -132,6 +119,15 @@ class MainActivity : ComponentActivity(){
                     }
 
                 }
+
+
+
+
+
+
+
+
+
                 "login" ->{
                     Column{
                         Text("Login")
@@ -163,14 +159,124 @@ class MainActivity : ComponentActivity(){
                                         subscriptions = RetrofitClient.api.getSubscriptions(
                                             token = "Bearer $accessToken"
                                         )
+                                        currentScreen = "home"
 
                                     }catch(e: HttpException){
-                                        
+                                        loginError = when(e.code()){
+                                            401 -> "User not found!"
+                                            403 -> "Incorrect Credentials"
+                                            else -> "${e.code()}"
+                                        }
+                                    }catch(e : Exception){
+                                        loginError = "Server Error! or 500!"
                                     }
                                 }
                             }
                         ){
                             Text("Login")
+                        }
+                        if(loginError.isNotEmpty()){
+                            Text(loginError)
+                        }
+                    }
+                }
+
+
+
+
+
+
+
+
+
+                "home" ->{
+                    Column{
+                        Text("     ")
+                        Text("     ")
+                        Text("     ")
+                        Text("     ")
+                        Text("     ")
+
+                        subscriptions.forEach{subs ->
+                            Text(subs.name)
+                            Text("${subs.amount}" + "TL")
+                            Text(subs.payCycle)
+                        }
+                        Text("     ")
+                        Text("     ")
+                        Button(
+                            onClick = {
+                                currentScreen = "subsCreate"
+                            }
+                        ){
+                            Text("+")
+                        }
+
+                    }
+                }
+
+
+
+
+
+
+                "subsCreate" ->{
+                    Column{
+                        Text("     ")
+                        Text("     ")
+                        Text("     ")
+                        Text("NEW SUBSCRIPTION")
+
+                        OutlinedTextField(
+                            value = subsTitle,
+                            onValueChange = {subsTitle = it},
+                            label = {Text("Subscription Title")}
+                        )
+                        OutlinedTextField(
+                            value = subsAmount,
+                            onValueChange = { input ->
+                                if (input.all { it.isDigit() }) {
+                                    subsAmount = input
+                                }
+                            },
+                            label = { Text("Subscription amount") }
+                        )
+                        OutlinedTextField(
+                            value = payCycle,
+                            onValueChange = {payCycle = it},
+                            label = {Text("Subscription Title")}
+                        )
+                        Button(
+                            onClick = {
+                                val newSubscription = SubscriptionCreateRequest(
+                                    name = subsTitle,
+                                    amount = subsAmount.toIntOrNull() ?: 0,
+                                    payCycle = payCycle
+
+                                )
+                                lifecycleScope.launch{
+                                    try{
+                                        val createResponse = RetrofitClient.api.createSubscription(
+                                            token = "Bearer $accessToken",
+                                            createSubs = newSubscription
+                                        )
+                                        subscriptions  = subscriptions + createResponse
+                                    }catch(e : HttpException){
+                                        creationError = when(e.code()){
+                                            400 -> "Bad request error"
+                                            else -> "Unknown creation error!"
+                                        }
+                                    }catch(e : Exception){
+                                        creationError = "Server problem!"
+                                    }
+                                }
+
+                            }
+                        ){
+                            Text("Create Subscription!")
+                        }
+                        if(creationError.isNotEmpty()){
+                            Text(creationError)
                         }
                     }
                 }

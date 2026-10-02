@@ -39,9 +39,12 @@ async def get_my_subs(db:Session = Depends(database.get_database), current_user:
         raise HTTPException(detail="no subscription found!", status_code=status.HTTP_404_NOT_FOUND)
     return user_subs
 
+
+
+
 #CREATE NEW SUBSCRIPTION
-@router.post('/create', status_code=status.HTTP_201_CREATED, response_model=str)
-async def create_subs(new_features:schemas.SubscriptionCreate, db:Session = Depends(database.get_database), current_user:models.User = Depends(oauth2.get_current_user)) -> str:
+@router.post('/create', status_code=status.HTTP_201_CREATED, response_model=schemas.SubscriptionCreate)
+async def create_subs(new_features:schemas.SubscriptionCreate, db:Session = Depends(database.get_database), current_user:models.User = Depends(oauth2.get_current_user)) -> schemas.SubscriptionCreate:
     create_data = new_features.model_dump(exclude_unset=True)
 
     new_subs = models.Subscription(
@@ -50,12 +53,14 @@ async def create_subs(new_features:schemas.SubscriptionCreate, db:Session = Depe
         pay_cycle = create_data['pay_cycle'],
         user_id = current_user.id
     )
+    try:
+        db.add(new_subs)
+        db.commit()
+        db.refresh(new_subs)
+    except Exception as exc:
+        raise HTTPException(detail=f'Subscription Creation Error: {str(exc)}', status_code=status.HTTP_400_BAD_REQUEST)
 
-    db.add(new_subs)
-    db.commit()
-    db.refresh(new_subs)
-
-    return 'successfully subscription created!'
+    return new_subs
 
 
 

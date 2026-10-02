@@ -14,6 +14,12 @@ data class LoginResponse(
 
 data class SubscriptionDisplay(
     val name:String,
-    val amount:Float,
+    val amount: Int,
     val payCycle:String
+)
+
+data class SubscriptionCreateRequest(
+    val name: String,
+    val amount: Int,
+    val payCycle: String
 )
