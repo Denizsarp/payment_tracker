@@ -23,3 +23,7 @@ data class SubscriptionCreateRequest(
     val amount: Int,
     val payCycle: String
 )
+
+data class SubscriptionDeleteRequest(
+    val name: String
+)

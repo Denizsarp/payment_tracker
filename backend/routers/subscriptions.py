@@ -65,9 +65,9 @@ async def create_subs(new_features:schemas.SubscriptionCreate, db:Session = Depe
 
 
 #DELETE SUBSCRIPTION OF MYSELF
-@router.delete('/{subs_id}}', status_code=status.HTTP_200_OK, response_model=str)
-async def delete_subs(subs_id :UUID, db: Session = Depends(database.get_database), current_user:models.User = Depends(oauth2.get_current_user)) -> str:
-    target_subs:models.Subscription = db.query(models.Subscription).filter(models.Subscription.id == subs_id).first()
+@router.delete('/delete', status_code=status.HTTP_200_OK, response_model=str)
+async def delete_subs(subs_features:Schemas.SubscriptionCreate, db: Session = Depends(database.get_database), current_user:models.User = Depends(oauth2.get_current_user)) -> str:
+    target_subs:models.Subscription = db.query(models.Subscription).filter(models.Subscription.name == subs_features.name).filter(models.Subscription.user_id == current_user.id).first()
 
     if not target_subs:
         raise HTTPException(detail="No subscription found!", status_code=status.HTTP_404_NOT_FOUND)

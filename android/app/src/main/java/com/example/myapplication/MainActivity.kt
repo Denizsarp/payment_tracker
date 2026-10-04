@@ -32,6 +32,11 @@ class MainActivity : ComponentActivity(){
                 mutableStateOf(listOf<SubscriptionDisplay>())
             }
             var userMemories by remember{mutableStateOf(listOf<SubscriptionDisplay>())}
+            var targetSubs by remember {
+                mutableStateOf<SubscriptionDisplay?>(null)
+            }
+
+            var totalSpendingMonthly by remember{mutableStateOf("")}
 
             var subsTitle by remember{mutableStateOf("")}
             var subsAmount by remember{ mutableStateOf("") }
@@ -42,6 +47,7 @@ class MainActivity : ComponentActivity(){
             var registerError by remember{mutableStateOf("")}
             var loginError by remember{mutableStateOf("")}
             var creationError by remember{mutableStateOf("")}
+            var deletionError by remember{mutableStateOf("")}
 
 
 
@@ -93,6 +99,7 @@ class MainActivity : ComponentActivity(){
                                     )
                                     try{
                                         RetrofitClient.api.register(registerReq)
+                                        currentScreen = "login"
                                     }catch(e : HttpException){
                                         registerError = "Error while registering!"
                                     }
@@ -103,9 +110,6 @@ class MainActivity : ComponentActivity(){
                         }
                         if(registerError.isNotEmpty()){
                             Text(registerError)
-                        }
-                        else{
-                            currentScreen = "login"
                         }
 
                         Button(
@@ -159,6 +163,12 @@ class MainActivity : ComponentActivity(){
                                         subscriptions = RetrofitClient.api.getSubscriptions(
                                             token = "Bearer $accessToken"
                                         )
+                                        var tempTotal: Int = 0
+                                        subscriptions.forEach {sub ->
+                                            tempTotal += sub.amount
+                                        }
+
+                                        totalSpendingMonthly = tempTotal.toString()
                                         currentScreen = "home"
 
                                     }catch(e: HttpException){
@@ -197,10 +207,20 @@ class MainActivity : ComponentActivity(){
                         Text("     ")
                         Text("     ")
 
+                        Text("Your total monthly Spending:" + totalSpendingMonthly + "TL")
                         subscriptions.forEach{subs ->
                             Text(subs.name)
                             Text("${subs.amount}" + "TL")
                             Text(subs.payCycle)
+
+                            Button(
+                                onClick = {
+                                    targetSubs = subs
+                                    currentScreen = "subsDetails"
+                                }
+                            ){
+                                Text("Details")
+                            }
                         }
                         Text("     ")
                         Text("     ")
@@ -279,6 +299,59 @@ class MainActivity : ComponentActivity(){
                             Text(creationError)
                         }
                     }
+                }
+
+                "subDetails" ->{
+                    Column{
+                        Text("    ")
+                        Text("    ")
+                        Text("    ")
+                        Text("    ")
+                        Text("Subscription Details")
+                        Text(targetSubs?.name ?: "")
+                        Text(targetSubs?.amount?.toString() ?: "")
+                        Text(targetSubs?.payCycle ?: "")
+
+                        Button(
+                            onClick = {
+                                lifecycleScope.launch{
+                                    val target = SubscriptionDeleteRequest(
+                                        name = targetSubs?.name ?: ""
+                                    )
+                                    try{
+                                        RetrofitClient.api.deleteSubscription(
+                                            token = "Bearer $accessToken",
+                                            deleteSubs = target
+                                        )
+                                        currentScreen = "home"
+                                    }catch(e : HttpException){
+                                        deletionError = when(e.code()){
+                                            404 -> "Subscription not found!"
+                                            403 -> "Not authenticated!"
+                                            else -> "Server Error, please try again later!"
+                                        }
+                                    }catch(e : Exception){
+                                        deletionError = "Server problem occurred!"
+                                    }
+                                }
+                            }
+                        ){
+                            Text("Delete Subscription")
+                        }
+                        if(deletionError.isNotEmpty()){
+                            Text(deletionError)
+                        }
+                        Button(
+                            onClick = {
+                                targetSubs = subscriptions.first()
+                                deletionError = ""
+                                currentScreen = "home"
+                            }
+                        ){
+                            Text("Home")
+                        }
+                    }
+
                 }
             }
         }

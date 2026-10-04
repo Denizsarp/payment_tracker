@@ -37,4 +37,11 @@ interface ApiService{
         @Header("Authorization") token : String,
         @Body createSubs : SubscriptionCreateRequest
     ): SubscriptionDisplay
+
+
+    @DELETE("/subscriptions/delete")
+    suspend fun deleteSubscription(
+        @Header("Authorization") token : String,
+        @Body deleteSubs : SubscriptionDeleteRequest
+    )
 }
